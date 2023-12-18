@@ -1,0 +1,176 @@
+<!-- app/templates/app/home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bit Bandits Home</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: url("{% static 'photo/home.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            color: #fff; /* Text color for better contrast on the background */
+        }
+
+        header {
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        nav {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+        }
+
+        li {
+            margin: 0 15px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #chat-log {
+            width: 80%;
+            margin-bottom: 20px;
+        }
+
+        #voice-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>Welcome to Bit Bandits</h2>
+</header>
+
+
+<div id="chat-container">
+    <div id="chat-log"></div>
+    <div id="voice-input">
+        <h1><center>voice assistance </center></h1>
+        <button onclick="startListening()">Start Listening</button>
+        <button onclick="stopListening()">Stop Listening</button>
+        <button onclick="clearChat()">Clear Chat</button>
+    </div>
+</div>
+
+<script>
+    const apiKey = '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';  // WARNING: Do not expose API key in production!
+    let recognition;
+    let chatLog = document.getElementById('chat-log');
+
+    function startListening() {
+        recognition = new webkitSpeechRecognition();
+        recognition.onresult = handleSpeechResult;
+        recognition.start();
+    }
+
+    function stopListening() {
+        if (recognition) {
+            recognition.stop();
+        }
+    }
+
+    function handleSpeechResult(event) {
+        const transcript = event.results[0][0].transcript;
+        appendMessage('User', transcript);
+        fetchChatGPTResponse(transcript);
+    }
+
+    function fetchChatGPTResponse(userInput) {
+        const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'You are a helpful assistant.' },
+                    { role: 'user', content: userInput }
+                ]
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const chatGPTResponse = data.choices[0].message.content;
+            appendMessage('ChatGPT', chatGPTResponse);
+            speak(chatGPTResponse);
+        })
+        .catch(error => console.error('Error fetching ChatGPT response:', error));
+    }
+
+    function appendMessage(sender, message) {
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        chatLog.appendChild(messageElement);
+    }
+
+    function speak(message) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(message);
+        synth.speak(utterance);
+    }
+
+    function clearChat() {
+        chatLog.innerHTML = '';
+    }
+</script>
+
+</body>
+</html>

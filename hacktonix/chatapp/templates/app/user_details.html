@@ -1,0 +1,26 @@
+<!-- user_details.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+</head>
+<body>
+    <h1>User Details</h1>
+    <p>Username: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p>Bio: {{ user.bio }}</p>
+
+    <h2>Send Message</h2>
+    <form method="post" action="{% url 'send_message' sender_id=user.id receiver_id=user.id %}">
+        {% csrf_token %}
+        <label for="content">Message:</label>
+        <textarea name="content" required></textarea>
+        <br>
+        <button type="submit">Send</button>
+    </form>
+    <a href="{% url 'chat' %}">Back to Chat</a>
+</body>
+</html>

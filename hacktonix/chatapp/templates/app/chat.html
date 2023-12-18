@@ -1,0 +1,30 @@
+<!-- chat.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <ul>
+        {% for user in users %}
+            <li>
+                {{ user.username }}
+                <a href="{% url 'send_message' sender_id=request.user.id receiver_id=user.id %}">Send Message</a>
+                <a href="{% url 'view_messages' sender_id=request.user.id receiver_id=user.id %}">View Messages</a>
+            </li>
+        {% endfor %}
+        <li><!-- base.html or your navigation template -->
+
+            {% if user.is_authenticated %}
+                <p>Welcome, {{ user.username }}!</p>
+                <a href="{% url 'user_logout' %}">Logout</a>
+            {% endif %}
+        </li>            
+    </ul>
+    
+</body>
+</html>

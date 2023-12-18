@@ -1,0 +1,26 @@
+<!-- message.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+</head>
+<body>
+    <h1>Messages between {{ sender.username }} and {{ receiver.username }}</h1>
+    <div>
+        {% for message in messages %}
+            <p>
+                {% if message.sender == sender %}
+                    <strong>{{ sender.username }}:</strong>
+                {% else %}
+                    <strong>{{ receiver.username }}:</strong>
+                {% endif %}
+                {{ message.content }}
+            </p>
+        {% endfor %}
+    </div>
+    
+</body>
+</html>
